@@ -1,41 +1,40 @@
-import { useHistory } from "react-router-dom"
-import { FormEvent, useState } from "react";
-
-import illustrationImg from "../assets/images/illustration.svg"
-import logoImg from "../assets/images/logo.svg";
-import googleIconImg from "../assets/images/google-icon.svg";
-
-import { database } from "../services/firebase";
-
-import { Button } from "../components/Button";
-import { useAuth } from "../hooks/useAuth";
-
-import "../styles/auth.scss";
+import { useHistory } from 'react-router-dom';
+import { FormEvent, useState } from 'react';
+import illustrationImg from '../assets/images/illustration.svg';
+import logoImg from '../assets/images/logo.svg';
+import googleIconImg from '../assets/images/google-icon.svg';
+import { database } from '../services/firebase';
+import { Button } from '../components/Button';
+import { useAuth } from '../hooks/useAuth';
+import '../styles/auth.scss';
 
 export function Home() {
   const history = useHistory();
-  const { user, signInWithGoogle } = useAuth()
-  const [roomCode, setRoomCode] = useState("");
+  const { user, signInWithGoogle } = useAuth();
+  const [roomCode, setRoomCode] = useState('');
 
   async function handleCreateRoom() {
     if (!user) {
-      await signInWithGoogle()
+      await signInWithGoogle();
     }
 
-    history.push("/rooms/new");
+    history.push('/rooms/new');
   }
 
   async function handleJoinRoom(event: FormEvent) {
     event.preventDefault();
-
-    if (roomCode.trim() === "") {
+    if (roomCode.trim() === '') {
       return;
     }
 
     const roomRef = await database.ref(`rooms/${roomCode}`).get();
-
     if (!roomRef.exists()) {
-      alert("Room does not exists.");
+      alert('Room does not exists.');
+      return;
+    }
+
+    if (roomRef.val().endedAt) {
+      alert('Room already closed.');
       return;
     }
 
@@ -49,6 +48,7 @@ export function Home() {
         <strong>Crie salas de Q&amp;A ao-vivo</strong>
         <p>Tire as dúvidas da sua audiência em tempo-real</p>
       </aside>
+
       <main>
         <div className="main-content">
           <img src={logoImg} alt="Letmeask" />
@@ -70,6 +70,7 @@ export function Home() {
           </form>
         </div>
       </main>
+
     </div>
   )
 }
